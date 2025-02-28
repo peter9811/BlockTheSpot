@@ -48,7 +48,7 @@ bool SettingsManager::Save()
 
 bool SettingsManager::Load(const Json& settings)
 {
-    std::string buffer;
+    std::wstring buffer; // Changed from std::string to std::wstring
     if (settings == nullptr) {
         if (!Utils::ReadFile(m_app_settings_file, buffer)) {
             LogError(L"Failed to read settings file: {}", m_app_settings_file);
@@ -58,7 +58,7 @@ bool SettingsManager::Load(const Json& settings)
         try {
             m_app_settings = Json::parse(buffer);
         }
-        catch (const Json::parse_error& e) {
+        catch (const std::exception& e) { // Use standard exception instead of specialized Json exception
             LogError(L"Failed to parse settings file: {}. Error: {}", m_app_settings_file, Utils::ToString(e.what()));
             return false;
         }
@@ -74,12 +74,19 @@ bool SettingsManager::Load(const Json& settings)
 
     try {
         m_latest_release_date = m_app_settings.at(L"Latest Release Date").get_string();
-        m_block_list = m_app_settings.at(L"Block List").get_vector_wstring();
+
+        // Handle block list conversion correctly
+        auto block_list_json = m_app_settings.at(L"Block List");
+        m_block_list.clear();
+        for (size_t i = 0; i < block_list_json.size(); ++i) {
+            m_block_list.push_back(block_list_json[i].get_string());
+        }
+
         m_zip_reader = m_app_settings.at(L"Zip Reader");
         m_developer = m_app_settings.at(L"Developer");
         m_cef_offsets = m_app_settings.at(L"Cef Offsets");
     }
-    catch (const Json::type_error& e) {
+    catch (const std::exception& e) { // Use standard exception instead of specialized Json exception
         LogError(L"Failed to retrieve settings from JSON. Error: {}", Utils::ToString(e.what()));
         return false;
     }
