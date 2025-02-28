@@ -24,8 +24,8 @@ void SettingsManager::Init()
 bool SettingsManager::Save()
 {
     m_latest_release_date = L"2024-06-16"; // Update only when significant changes occur.
-    
-    m_block_list = { 
+
+    m_block_list = {
         L"/ads/",
         L"/ad-logic/",
         L"/gabo-receiver-service/"
@@ -221,10 +221,10 @@ bool SettingsManager::UpdateSettingsFromServer()
         LogError(L"Server settings validation failed.");
         return false;
     }
-    
+
     if (!CompareSettings(server_settings)) {
         const auto forced_update = m_latest_release_date != server_settings.at(L"Latest Release Date");
-        
+
         if (!Load(server_settings) || !Utils::WriteFile(m_app_settings_file, server_settings.dump(2))) {
             LogError(L"Failed to load server settings or write to the settings file: {}", m_app_settings_file);
             return false;
@@ -249,7 +249,7 @@ bool SettingsManager::ValidateSettings(const Json& settings)
         return false;
     }
 
-    static const std::unordered_map<std::wstring, Json::ValueType> keys = { 
+    static const std::unordered_map<std::wstring, Json::ValueType> keys = {
         {L"Latest Release Date", Json::ValueType::String},
         {L"Block List", Json::ValueType::Array},
         {L"Zip Reader", Json::ValueType::Object},
@@ -295,7 +295,7 @@ bool SettingsManager::ValidateSettings(const Json& settings)
             return false;
         }
 
-        static const std::unordered_map<std::wstring, Json::ValueType> dev_keys = { 
+        static const std::unordered_map<std::wstring, Json::ValueType> dev_keys = {
             {L"Signature", Json::ValueType::String},
             {L"Value", Json::ValueType::String},
             {L"Offset", Json::ValueType::Integer},
